@@ -48,7 +48,7 @@
                         attachment="${attachment}"
                         returnPageURI="${createLink(action: actionName, id: testEntryInstance.id)}"    
                         >[X]</attachments:deleteLink>
-                    <attachments:downloadLink
+                    <attachments:image
                                 attachment="${attachment}"
                                 withContentType="true"/></li>
             </attachments:each>
