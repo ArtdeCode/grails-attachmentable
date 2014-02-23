@@ -20,6 +20,8 @@ class AttachmentsTagLib {
 
     static namespace = 'attachments'
 
+	static images = ['jpg','png','gif','jpeg']
+	
     /* -------------------------------- TAGS -------------------------------- */
 
     def deleteLink = {attrs, body ->
@@ -35,26 +37,73 @@ class AttachmentsTagLib {
 
         out << g.link(attrs) { label }
     }
+	
+	def image = {attrs, body ->
+		def attachment = attrs.remove('attachment')
+
+		def label = body() ?: attachment?.filename?.encodeAsHTML()
+		
+		if (!images.contains(attachment.ext.toLowerCase())) {
+			return
+		}
+		
+		if (attachment.url) {
+			
+			def url  = attachment.url.encodeAsHTML()
+			
+			out << '<img src="' + url + '" alt=' + label + ' />'
+			
+		}
+		else {
+			attrs.controller = 'attachmentable'
+			attrs.action = 'download'
+			attrs.id = attachment.id
+			def params = [:]
+			if (booleanAttrValue(attrs, 'withContentType', false)) {
+				params.withContentType = ''
+			}
+			if (booleanAttrValue(attrs, 'inline', false)) {
+				params.inline = ''
+			}
+			if(params) {
+				attrs.params = params
+			}
+	
+			out << '<img src="' +g.createLing(attrs) +  '" alt=' + label + ' />'
+		}
+
+	}
 
     def downloadLink = {attrs, body ->
         def attachment = attrs.remove('attachment')
         def label = body() ?: attachment?.filename?.encodeAsHTML()
+		
+		if (attachment.url) {
+			
+			def url  = attachment.url.encodeAsHTML()
+			
+			out << '<a id="" href="' + url + '" >' + label + '</a>'
+			
+		}
+		else {
+			attrs.controller = 'attachmentable'
+			attrs.action = 'download'
+			attrs.id = attachment.id
+			def params = [:]
+			if (booleanAttrValue(attrs, 'withContentType', false)) {
+				params.withContentType = ''
+			}
+			if (booleanAttrValue(attrs, 'inline', false)) {
+				params.inline = ''
+			}
+			if(params) {
+				attrs.params = params
+			}
+	
+			out << g.link(attrs) { label }
+		}
 
-        attrs.controller = 'attachmentable'
-        attrs.action = 'download'
-        attrs.id = attachment.id
-        def params = [:]
-        if (booleanAttrValue(attrs, 'withContentType', false)) {
-            params.withContentType = ''
-        }
-        if (booleanAttrValue(attrs, 'inline', false)) {
-            params.inline = ''
-        }
-        if(params) {
-            attrs.params = params
-        }
 
-        out << g.link(attrs) { label }
     }
 
     def each = {attrs, body ->

@@ -16,15 +16,23 @@ package com.macrobit.grails.plugins.attachmentable.services
 
 import org.codehaus.groovy.grails.commons.ConfigurationHolder as CH
 
+import com.macrobit.grails.plugins.attachmentable.core.PublishingProvider;
 import com.macrobit.grails.plugins.attachmentable.core.exceptions.AttachmentableException
 import com.macrobit.grails.plugins.attachmentable.domains.Attachment
 import com.macrobit.grails.plugins.attachmentable.domains.AttachmentLink
+
 import grails.orm.PagedResultList
+import grails.util.Holders;
+
 import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.multipart.commons.CommonsMultipartFile
+
 import com.macrobit.grails.plugins.attachmentable.util.AttachmentableUtil
+
 import org.apache.commons.io.FilenameUtils
+
 import com.macrobit.grails.plugins.attachmentable.core.exceptions.EmptyFileException
+
 import java.lang.reflect.UndeclaredThrowableException
 
 class AttachmentableService {
@@ -144,8 +152,14 @@ class AttachmentableService {
         // save file to disk
         File diskFile = AttachmentableUtil.getFile(config, attachment, true)
         file.transferTo(diskFile)
-
+		
         attachment.length = diskFile.length()
+
+		PublishingProvider publishingProvider =  getPublishingProvider()
+		
+		if (publishingProvider) {
+			publishingProvider.publish(attachment, diskFile)
+		}
 
         // interceptors
         if(reference.respondsTo('onAddAttachment')) {
@@ -170,6 +184,17 @@ class AttachmentableService {
         def lnk = AttachmentLink.findByReferenceClassAndReferenceId(
                 reference.class.name, reference.ident())
         if (lnk) {
+			
+			PublishingProvider publishingProvider =  getPublishingProvider()
+			
+			if (publishingProvider) {
+				
+				reference.getAttachments()?.each {
+					publishingProvider.unpublish(it)
+				}
+			}
+	
+			
             try {
                 lnk.delete(flush: true)
                 files.each {File file ->
@@ -196,12 +221,24 @@ class AttachmentableService {
         File file = AttachmentableUtil.getFile(CH.config, attachment)
         try {
             AttachmentLink lnk = attachment.lnk
-            lnk.removeFromAttachments(attachment)
-            attachment.delete(flush: true)
+            
+			lnk.removeFromAttachments(attachment)
+            
+			attachment.delete(flush: true)
+			
             AttachmentableUtil.delete(file)
+	
+			PublishingProvider publishingProvider =  getPublishingProvider()
+			
+			if (publishingProvider) {
+				publishingProvider.unpublish(attachment)
+			}
+	
             removeUnusedLinks()
-            return true
-        } catch (org.springframework.dao.DataIntegrityViolationException e) {
+            
+			return true
+        } 
+		catch (org.springframework.dao.DataIntegrityViolationException e) {
             log.error "Error deleting attachment: ${e.message}"
         }
 
@@ -226,9 +263,17 @@ class AttachmentableService {
             File file = AttachmentableUtil.getFile(CH.config, attachment)
 
             try {
-                attachment.delete(flush: true)
-                cnt++
-                AttachmentableUtil.delete(file)
+				PublishingProvider publishingProvider =  getPublishingProvider()
+				
+				if (publishingProvider) {
+					publishingProvider.unpublish(attachment)
+				}
+				
+				attachment.delete(flush: true)
+                
+				cnt++
+        
+				AttachmentableUtil.delete(file)
             } catch (org.springframework.dao.DataIntegrityViolationException e) {
                 log.error "Error deleting attachments: ${e.message}"
             }
@@ -349,5 +394,16 @@ class AttachmentableService {
 
         result
     }
+											   
+	private PublishingProvider getPublishingProvider() {
+		
+		Class publishingProviderClass =   Holders.config.grails.attachmentable.pusblishProvider.provider
+		
+		if (publishingProviderClass) {
+			return publishingProviderClass.newInstance();
+		}
+		
+		return null;
+	}											   
 
 }

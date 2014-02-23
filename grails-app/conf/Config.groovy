@@ -1,3 +1,8 @@
+import org.codehaus.groovy.grails.commons.ConfigurationHolder;
+
+import com.macrobit.grails.plugins.attachmentable.domains.Attachment
+import com.macrobit.grails.plugins.attachmentable.util.AttachmentableUtil;
+
 // locations to search for config files that get merged into the main config
 // config files can either be Java properties files or ConfigSlurper scripts
 
@@ -86,8 +91,26 @@ log4j = {
 
 grails.attachmentable.maxInMemorySize = 1024
 grails.attachmentable.maxUploadSize = 1024000000
-grails.attachmentable.uploadDir = '/Users/Mihai/Desktop'
-
+grails.attachmentable.uploadDir = '/tmp'
+grails.attachmentable.fileCreator = {Attachment attachment ->
+	
+	File uploadDir = AttachmentableUtil.getDir(ConfigurationHolder.config, attachment, true)
+	
+	String filename = "${attachment.id}"
+	
+	if (attachment.ext) {
+		filename += '.' + attachment.ext
+	}
+	
+	File diskFile = new File(uploadDir, filename)
+	
+	diskFile
+}
 grails.attachmentable.poster.evaluator = {
     [id: 1, name: 'Mihai', 'class': [name: 'SomeClass']] 
 }
+grails.attachmentable.pusblishProvider.provider = com.macrobit.grails.plugins.attachmentable.provider.S3PublishingProvider.class
+grails.attachmentable.pusblishProvider.aws.domain="s3.amazonaws.com"
+grails.attachmentable.pusblishProvider.aws.accessKey="123456"
+grails.attachmentable.pusblishProvider.aws.secretKey="123456"
+grails.attachmentable.pusblishProvider.aws.bucketName="default"

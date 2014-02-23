@@ -14,9 +14,12 @@
  */
 package com.macrobit.grails.plugins.attachmentable.util
 
-import com.macrobit.grails.plugins.attachmentable.domains.AttachmentLink
-import com.macrobit.grails.plugins.attachmentable.domains.Attachment
+import grails.util.Holders
+
 import org.apache.commons.io.FileUtils
+
+import com.macrobit.grails.plugins.attachmentable.domains.Attachment
+import com.macrobit.grails.plugins.attachmentable.domains.AttachmentLink
 
 class AttachmentableUtil {
 
@@ -70,8 +73,13 @@ class AttachmentableUtil {
                        Long referenceId,
                        boolean createDirs = false) {
         referenceClass = AttachmentableUtil.fixClassName(referenceClass)
-        File uploadDir = new File(
-                config.grails.attachmentable.uploadDir, referenceClass)
+		
+		String uploadPath =  config.grails.attachmentable.uploadDir
+		
+		println uploadPath
+		
+        File uploadDir = new File(uploadPath, referenceClass)
+		
         uploadDir = new File(uploadDir, "$referenceId")
         if (!uploadDir.exists()) {
             uploadDir.mkdirs()
@@ -84,14 +92,26 @@ class AttachmentableUtil {
     static File getFile(config,
                         Attachment attachment,
                         boolean createDirs = false) {
-        File uploadDir = getDir(config, attachment, createDirs)
-        String filename = "${attachment.id}"
-        if (attachment.ext) {
-            filename += '.' + attachment.ext
-        }
-        File file = new File(uploadDir, filename)
+     
+		def fileCreator = Holders.config.grails.attachmentable.fileCreator;
+		
+		File diskFile = null;
+		
+		if (fileCreator instanceof Closure) {
+			
+			diskFile = fileCreator.call(attachment);
+			
+		}
+		else {
+		    File uploadDir = getDir(config, attachment, createDirs)
+	        String filename = "${attachment.id}"
+	        if (attachment.ext) {
+	            filename += '.' + attachment.ext
+	        }
+	        diskFile = new File(uploadDir, filename)
+		}
 
-        file
+        diskFile
     }
 
 }

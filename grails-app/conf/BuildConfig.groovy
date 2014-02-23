@@ -23,13 +23,17 @@ grails.project.dependency.resolution = {
         //mavenRepo "http://repository.jboss.com/maven2/"
     }
     dependencies {
-        compile("org.apache.tika:tika-parsers:1.1") { exclude "xmlbeans" }
-	compile 'org.compass-project:compass:2.2.0'
+		
+		compile 'net.java.dev.jets3t:jets3t:0.9.0'
+        compile("org.apache.tika:tika-parsers:1.1") { 
+			exclude ":xmlbeans"
+		}
+		compile ('org.compass-project:compass:2.2.0')
     }
     plugins {
         build(":tomcat:$grailsVersion",
-              ":rest-client-builder:1.0.2",
-              ":release:2.0.4") {
+              ":release:2.2.1",
+              ":rest-client-builder:1.0.3") {
             export = false
         }
         runtime(":hibernate:$grailsVersion") {

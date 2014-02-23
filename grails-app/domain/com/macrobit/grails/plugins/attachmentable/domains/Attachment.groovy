@@ -19,6 +19,8 @@ import com.macrobit.grails.plugins.attachmentable.util.AttachmentableUtil
 
 class Attachment {
 
+	
+	
     // file
     String name
     String ext
@@ -33,6 +35,10 @@ class Attachment {
     // input name
     String inputName
 
+	String provider;
+	
+	String url;
+	
     static belongsTo = [lnk: AttachmentLink]
 
     static constraints = {
@@ -43,6 +49,9 @@ class Attachment {
 
         posterClass blank: false
         posterId min: 0L
+		
+		provider nullable: true, blank: true
+		url nullable: true, blank: true
     }
     static transients = ['filename', 'path', 'niceLength', 'poster']
     static searchable = {
