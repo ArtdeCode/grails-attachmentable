@@ -37,8 +37,11 @@ class AttachmentableGrailsPlugin {
     def dependsOn = [hibernate: '1.1 > *']
     def pluginExcludes = [
         'lib/**',
-
-        'grails-app/conf/**',
+		
+		'grails-app/conf/BootStrap.groovy',
+		'grails-app/conf/Config.groovy',
+		'grails-app/conf/DataSource.groovy',
+		'grails-app/conf/UrlMappings.groovy',
 
         'grails-app/views/testEntry/**',
         'grails-app/views/error.gsp',
@@ -55,7 +58,7 @@ class AttachmentableGrailsPlugin {
 
     def author = 'Mihai Cazacu'
     def authorEmail = 'cazacugmihai@gmail.com'
-    def developers = [[name: "Goran Ehrsson", email: "goran@technipelago.se"]]
+    def developers = [[name: "Goran Ehrsson", email: "goran@technipelago.se"],[name: "Emilio Alberdi", email: "emilio.alberdi@artdecode.com.ar"]]
     def title = 'Attachmentable Plugin'
     def description = 'A plugin that allows you to add attachments to domain classes in a generic manner.'
     def license = "APACHE"

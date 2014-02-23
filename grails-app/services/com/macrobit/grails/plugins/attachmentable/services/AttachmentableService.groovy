@@ -168,6 +168,12 @@ class AttachmentableService {
 
         attachment.save(flush:true) // Force update so searchable can try to index it again.
 
+		def afterAttachmentSave = Holders.config.grails.attachmentable.afterAttachmentSave
+		
+		if (afterAttachmentSave instanceof Closure) {
+			afterAttachmentSave.call(attachment)
+		}
+		
         return reference
     }
 

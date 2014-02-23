@@ -2,6 +2,10 @@ grails.project.class.dir = "target/classes"
 grails.project.test.class.dir = "target/test-classes"
 grails.project.test.reports.dir = "target/test-reports"
 grails.project.target.level = 1.6
+grails.project.repos.artdecode.url = "http://svn.artdecode.com.ar/artifactory/libs-release-local/"
+grails.project.repos.default = "artdecode"
+grails.project.repos.artdecode.type = "maven"
+grails.release.scm.enabled = false
 //grails.project.war.file = "target/${appName}-${appVersion}.war"
 
 grails.project.dependency.resolution = {
