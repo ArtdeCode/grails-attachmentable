@@ -27,7 +27,9 @@ class S3PublishingProvider implements PublishingProvider {
 		
 		S3Object fileObject = new S3Object(file);
 		
-		fileObject.acl = AccessControlList.REST_CANNED_PUBLIC_READ
+		def acl = Holders.config.grails.attachmentable.pusblishProvider.aws.acl
+		
+		fileObject.acl = (acl) ? AccessControlList."${acl}" : AccessControlList.REST_CANNED_PUBLIC_READ
 		
 		fileObject.contentType = attachment.contentType;
 		
@@ -43,7 +45,10 @@ class S3PublishingProvider implements PublishingProvider {
 		
 		attachment.url =  s3Service.createUnsignedObjectUrl(s3Bucket.name, fileObject.key, false, false, false)
 		
-		file.delete();
+		if (Holders.config.grails.attachmentable.pusblishProvider.removeLocal) {
+			file.delete();
+		}
+		
 	}
 
 	private S3Service getS3Service() {
@@ -70,45 +75,5 @@ class S3PublishingProvider implements PublishingProvider {
 		
 		s3Service.deleteObject(s3Bucket, attachment.name)
 				
-	}
-	
-	static main(args) {
-		
-		println "Start"
-		
-		String awsAccessKey = "AKIAI6WJ4KFAE4V3UMMA";
-		
-		String awsSecretKey = "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";
-		
-		AWSCredentials awsCredentials = new AWSCredentials(awsAccessKey, awsSecretKey);
-		
-		RestS3Service s3Service = new RestS3Service(awsCredentials)
-
-		File file = new File('/home/emilio/Pictures/entrega4.png')
-				
-		S3Object fileObject = new S3Object(file);
-	
-		fileObject.acl = AccessControlList.REST_CANNED_PUBLIC_READ
-		
-		fileObject.contentType = 'image/jpeg';
-		
-		fileObject.contentLength = file.length()
-		
-		fileObject.lastModifiedDate = new Date(file.lastModified());
-		
-		S3Bucket s3Bucket = s3Service.getBucket('homes4trips');
-		
-		fileObject = s3Service.putObject(s3Bucket, fileObject);
-		
-		println fileObject.key;
-		
-		println fileObject.bucketName
-		
-		println fileObject
-		
-		println s3Service.createUnsignedObjectUrl(s3Bucket.name, fileObject.key, false, false, false)
-		
-		//s3Service.deleteObject(s3Bucket, fileObject.key)
-	}
-	
+	}	
 }
