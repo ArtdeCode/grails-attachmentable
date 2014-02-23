@@ -10,3 +10,7 @@ target
 
 stacktrace.log
 plugin.xml
+/.settings
+/.classpath
+/.project
+/target-eclipse
