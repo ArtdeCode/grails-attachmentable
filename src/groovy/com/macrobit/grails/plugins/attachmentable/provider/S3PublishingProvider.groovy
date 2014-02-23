@@ -1,8 +1,7 @@
 package com.macrobit.grails.plugins.attachmentable.provider
 
-import grails.util.Holders;
+import grails.util.Holders
 
-import org.codehaus.groovy.grails.commons.ConfigurationHolder;
 import org.jets3t.service.S3Service
 import org.jets3t.service.acl.AccessControlList
 import org.jets3t.service.impl.rest.httpclient.RestS3Service
@@ -53,7 +52,7 @@ class S3PublishingProvider implements PublishingProvider {
 
 	private S3Service getS3Service() {
 		
-		def config = ConfigurationHolder.config
+		def config = Holders.config
 		
 		String awsAccessKey = config.grails.attachmentable.pusblishProvider.aws.accessKey;
 
