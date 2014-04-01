@@ -14,6 +14,8 @@
  */
 package com.macrobit.grails.plugins.attachmentable.taglibs
 
+import org.codehaus.groovy.runtime.InvokerHelper
+
 import com.macrobit.grails.plugins.attachmentable.util.AttachmentableUtil
 
 class AttachmentsTagLib {
@@ -23,6 +25,24 @@ class AttachmentsTagLib {
 	static images = ['jpg','png','gif','jpeg']
 	
     /* -------------------------------- TAGS -------------------------------- */
+	
+	
+	static String attrsToString(Map attrs) {
+		// Output any remaining user-specified attributes
+		StringBuilder sb=new StringBuilder()
+		// For some strange reason Groovy creates ClassCastExceptions internally in PogoMetaMethodSite.checkCall without this hack
+		for (Iterator i = InvokerHelper.asIterator(attrs); i.hasNext();) {
+			Map.Entry e = i.next()
+			if (e.value != null) {
+				sb.append(' ')
+				sb.append(e.key)
+				sb.append('="')
+				sb.append(String.valueOf(e.value).encodeAsHTML())
+				sb.append('"')
+			}
+		}
+		return sb.toString()
+	}
 
     def deleteLink = {attrs, body ->
         def attachment = attrs.remove('attachment')
@@ -49,9 +69,13 @@ class AttachmentsTagLib {
 		
 		if (attachment.url) {
 			
+			def excludes = ['dir', 'url', 'file', 'plugin']
+			
+			def attrsAsString = attrsToString(attrs.findAll { !(it.key in excludes) })
+			
 			def url  = attachment.url.encodeAsHTML()
 			
-			out << '<img src="' + url + '" alt=' + label + ' />'
+			out << "<img src=\"${uri.encodeAsHTML()}\" src=\"${label.encodeAsHTML()}\" ${attrsAsString} />"
 			
 		}
 		else {
@@ -69,7 +93,11 @@ class AttachmentsTagLib {
 				attrs.params = params
 			}
 	
-			out << '<img src="' +g.createLing(attrs) +  '" alt=' + label + ' />'
+			def excludes = ['dir', 'url', 'file', 'plugin', 'action', 'controller', 'id']
+			
+			def attrsAsString = attrsToString(attrs.findAll { !(it.key in excludes) })
+			
+			out << '<img src="' +g.createLink(attrs) +  '" alt=' + label + " ${attrsAsString} />"
 		}
 
 	}
