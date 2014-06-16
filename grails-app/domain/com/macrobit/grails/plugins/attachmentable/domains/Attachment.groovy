@@ -19,7 +19,7 @@ import com.macrobit.grails.plugins.attachmentable.util.AttachmentableUtil
 
 class Attachment implements Serializable {
 
-	
+	 
 	
     // file
     String name
