@@ -10,7 +10,6 @@
 </g:if>
 
 <g:javascript>
-    jQuery.noConflict();
     jQuery(document).ready(function() {
         jQuery('#${inputName}').MultiFile({
             max: ${maxFiles},

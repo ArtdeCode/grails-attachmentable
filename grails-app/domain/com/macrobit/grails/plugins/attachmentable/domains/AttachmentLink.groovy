@@ -14,7 +14,9 @@
  */
 package com.macrobit.grails.plugins.attachmentable.domains
 
-class AttachmentLink {
+import java.io.Serializable;
+
+class AttachmentLink implements Serializable{
 
     String referenceClass
     Long referenceId

@@ -17,7 +17,7 @@ package com.macrobit.grails.plugins.attachmentable.domains
 import org.codehaus.groovy.grails.commons.ConfigurationHolder as CH
 import com.macrobit.grails.plugins.attachmentable.util.AttachmentableUtil
 
-class Attachment {
+class Attachment implements Serializable {
 
 	
 	

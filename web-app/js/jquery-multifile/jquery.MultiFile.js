@@ -1,11 +1,9 @@
 /*
- ### jQuery Multiple File Upload Plugin v1.46 - 2009-05-12 ###
+ ### jQuery Multiple File Upload Plugin v1.48 - 2012-07-19 ###
  * Home: http://www.fyneworks.com/jquery/multiple-file-upload/
  * Code: http://code.google.com/p/jquery-multifile-plugin/
  *
- * Dual licensed under the MIT and GPL licenses:
- *   http://www.opensource.org/licenses/mit-license.php
- *   http://www.gnu.org/licenses/gpl.html
+	* Licensed under http://en.wikipedia.org/wiki/MIT_License
  ###
 */
 
@@ -21,9 +19,9 @@
 		if(typeof arguments[0]=='string'){
 			// Perform API methods on individual elements
 			if(this.length>1){
-				var params = arguments;
+				var args = arguments;
 				return this.each(function(){
-					$.fn.MultiFile.apply($(this), params);
+					$.fn.MultiFile.apply($(this), args);
     });
 			};
 			// Invoke API method handler
@@ -87,12 +85,12 @@
        // limit number of files that can be selected?
        if(!(o.max>0) /*IsNull(MultiFile.max)*/){
         o.max = MultiFile.E.attr('maxlength');
-        if(!(o.max>0) /*IsNull(MultiFile.max)*/){
-         o.max = (String(MultiFile.e.className.match(/\b(max|limit)\-([0-9]+)\b/gi) || ['']).match(/[0-9]+/gi) || [''])[0];
-         if(!(o.max>0)) o.max = -1;
-         else           o.max = String(o.max).match(/[0-9]+/gi)[0];
-        }
        };
+							if(!(o.max>0) /*IsNull(MultiFile.max)*/){
+								o.max = (String(MultiFile.e.className.match(/\b(max|limit)\-([0-9]+)\b/gi) || ['']).match(/[0-9]+/gi) || [''])[0];
+								if(!(o.max>0)) o.max = -1;
+								else           o.max = String(o.max).match(/[0-9]+/gi)[0];
+							}
        o.max = new Number(o.max);
        // limit extensions?
        o.accept = o.accept || MultiFile.E.attr('accept') || '';
@@ -246,7 +244,7 @@
             // Handle error
             MultiFile.error(ERROR);
 												
-            // 2007-06-24: BUG FIX - Thanks to Adrian Wrï¿½bel <adrian [dot] wrobel [at] gmail.com>
+            // 2007-06-24: BUG FIX - Thanks to Adrian Wróbel <adrian [dot] wrobel [at] gmail.com>
             // Ditch the trouble maker and add a fresh new element
             MultiFile.n--;
             MultiFile.addSlave(newEle[0], slave_count);
@@ -430,12 +428,12 @@
 			* @param Array methods (optional) Array of method names to be intercepted
 			*/
   intercepted: {},
-  intercept: function(methods, context, params){
-   var method, value; params = params || [];
-   if(params.constructor.toString().indexOf("Array")<0) params = [ params ];
+  intercept: function(methods, context, args){
+   var method, value; args = args || [];
+   if(args.constructor.toString().indexOf("Array")<0) args = [ args ];
    if(typeof(methods)=='function'){
     $.fn.MultiFile.disableEmpty();
-    value = methods.apply(context || window, params);
+    value = methods.apply(context || window, args);
 				//SEE-http://code.google.com/p/jquery-multifile-plugin/issues/detail?id=27
 				setTimeout(function(){ $.fn.MultiFile.reEnableEmpty() },1000);
     return value;
@@ -448,13 +446,14 @@
      $.fn[method] = function(){
       $.fn.MultiFile.disableEmpty();
       value = $.fn.MultiFile.intercepted[method].apply(this, arguments);
-						//SEE-http://code.google.com/p/jquery-multifile-plugin/issues/detail?id=27
+						//SEE http://code.google.com/p/jquery-multifile-plugin/issues/detail?id=27
       setTimeout(function(){ $.fn.MultiFile.reEnableEmpty() },1000);
       return value;
      }; // interception
     })(method); // MAKE SURE THAT method IS ISOLATED for the interception
    };// for each method
-  }
+  } // $.fn.MultiFile.intercept
+		
  });
 	
 	/*--------------------------------------------------------*/
@@ -470,6 +469,11 @@
 		
 		// name to use for newly created elements
 		namePattern: '$name', // same name by default (which creates an array)
+         /*master name*/ // use $name
+         /*master id  */ // use $id
+         /*group count*/ // use $g
+         /*slave count*/ // use $i
+									/*other      */ // use any combination of he above, eg.: $name_file$i
 		
 		// STRING: collection lets you show messages in different languages
 		STRING: {
@@ -482,7 +486,7 @@
 		
 		// name of methods that should be automcatically intercepted so the plugin can disable
 		// extra file elements that are empty before execution and automatically re-enable them afterwards
-  autoIntercept: [ 'submit', 'ajaxSubmit', 'ajaxForm', 'validate' /* array of methods to intercept */ ],
+  autoIntercept: [ 'submit', 'ajaxSubmit', 'ajaxForm', 'validate', 'valid' /* array of methods to intercept */ ],
 		
 		// error handling function
 		error: function(s){

@@ -59,6 +59,7 @@ class AttachmentsTagLib {
     }
 	
 	def image = {attrs, body ->
+		
 		def attachment = attrs.remove('attachment')
 
 		def label = body() ?: attachment?.filename?.encodeAsHTML()
@@ -75,7 +76,7 @@ class AttachmentsTagLib {
 			
 			def url  = attachment.url.encodeAsHTML()
 			
-			out << "<img src=\"${uri.encodeAsHTML()}\" src=\"${label.encodeAsHTML()}\" ${attrsAsString} />"
+			out << "<img src=\"${url.encodeAsHTML()}\" src=\"${label.encodeAsHTML()}\" ${attrsAsString} />"
 			
 		}
 		else {
