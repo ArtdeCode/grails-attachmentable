@@ -16,6 +16,7 @@ package com.macrobit.grails.plugins.attachmentable.services
 
 import org.codehaus.groovy.grails.commons.ConfigurationHolder as CH
 
+import com.macrobit.grails.plugins.attachmentable.core.DownloaderProvider;
 import com.macrobit.grails.plugins.attachmentable.core.PublishingProvider;
 import com.macrobit.grails.plugins.attachmentable.core.exceptions.AttachmentableException
 import com.macrobit.grails.plugins.attachmentable.domains.Attachment
@@ -401,15 +402,37 @@ class AttachmentableService {
         result
     }
 											   
-	private PublishingProvider getPublishingProvider() {
-		
-		Class publishingProviderClass =   Holders.config.grails.attachmentable.pusblishProvider.provider
-		
-		if (publishingProviderClass) {
-			return publishingProviderClass.newInstance();
-		}
+	def PublishingProvider getPublishingProvider() {
+	
+		try {
+			Class publishingProviderClass =   Holders.config.grails.attachmentable.pusblishProvider.provider
+			
+			if (publishingProviderClass) {
+				return publishingProviderClass.newInstance();
+			}
+			
+		} 
+		catch (Throwable e) {
+		}	
 		
 		return null;
-	}											   
+	}
+	
+	def DownloaderProvider getDownloaderProvider() {
+		
+		try {
+			Class downloaderProviderClass =   Holders.config.grails.attachmentable.downloaderProvider.provider
+			
+			if (downloaderProviderClass) {
+				return downloaderProviderClass.newInstance();
+			}
+	
+		} 
+		catch (Throwable e) {
+		}
+				
+		return null;
+	}
+
 
 }

@@ -16,10 +16,13 @@ package com.macrobit.grails.plugins.attachmentable.controllers
 
 import org.codehaus.groovy.grails.commons.ConfigurationHolder as CH
 
+import com.macrobit.grails.plugins.attachmentable.core.DownloaderProvider;
 import com.macrobit.grails.plugins.attachmentable.domains.Attachment
 import com.macrobit.grails.plugins.attachmentable.domains.AttachmentLink
 import com.macrobit.grails.plugins.attachmentable.util.AttachmentableUtil
+
 import grails.orm.PagedResultList
+
 import javax.servlet.http.HttpServletResponse
 
 class AttachmentableController {
@@ -31,8 +34,22 @@ class AttachmentableController {
     def download = {
         Attachment attachment = Attachment.get(params.id as Long)
 
+		DownloaderProvider downloaderProvider = attachmentableService.downloaderProvider
+		
+		if (downloaderProvider ) {
+			
+			if (!downloaderProvider.isAuthorized(attachment)) {
+				
+				render status: HttpServletResponse.SC_UNAUTHORIZED;
+				
+				return;
+						
+			}
+		}
+				
         if (attachment) {
-            File file = AttachmentableUtil.getFile(CH.config, attachment)
+            
+			File file = AttachmentableUtil.getFile(CH.config, attachment)
 
             if (file.exists()) {
                 String filename = attachment.filename /*.replaceAll(/\s/, '_')*/
@@ -48,19 +65,24 @@ class AttachmentableController {
                 } else {
                     response.contentType = 'application/octet-stream'
                 }
-                file.withInputStream{fis->
+                		
+				downloaderProvider.download(attachment, file);
+				
+				file.withInputStream{fis->
                     response.outputStream << fis
                 }
-
+				
                 // response.contentLength = file.length()
                 // response.outputStream << file.readBytes()
-                // response.outputStream.flush()
-                // response.outputStream.close()
-                return
+                response.outputStream.flush()
+                response.outputStream.close()
+                
+				return null
             }
         }
 
-        response.status = HttpServletResponse.SC_NOT_FOUND
+		render status: HttpServletResponse.SC_NOT_FOUND;
+		
     }
 
     def show = {

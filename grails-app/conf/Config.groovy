@@ -106,11 +106,17 @@ grails.attachmentable.fileCreator = {Attachment attachment ->
 	
 	diskFile
 }
+grails.attachmentable.afterAttachmentSave = {Attachment attachment ->
+	
+}
 grails.attachmentable.poster.evaluator = {
     [id: 1, name: 'Mihai', 'class': [name: 'SomeClass']] 
 }
+grails.attachmentable.downloaderProvider.provider = com.macrobit.grails.plugins.attachmentable.provider.AuthDownloaderProvider.class
 grails.attachmentable.pusblishProvider.provider = com.macrobit.grails.plugins.attachmentable.provider.S3PublishingProvider.class
+grails.attachmentable.pusblishProvider.removeLocal=true
 grails.attachmentable.pusblishProvider.aws.domain="s3.amazonaws.com"
-grails.attachmentable.pusblishProvider.aws.accessKey="123456"
-grails.attachmentable.pusblishProvider.aws.secretKey="123456"
-grails.attachmentable.pusblishProvider.aws.bucketName="default"
+grails.attachmentable.pusblishProvider.aws.accessKey="1"
+grails.attachmentable.pusblishProvider.aws.secretKey="1"
+grails.attachmentable.pusblishProvider.aws.bucketName="s3test"
+

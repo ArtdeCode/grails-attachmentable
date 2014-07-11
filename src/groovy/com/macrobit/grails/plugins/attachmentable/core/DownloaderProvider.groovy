@@ -20,12 +20,12 @@ import com.macrobit.grails.plugins.attachmentable.domains.Attachment
  * Marker interface used to specify a domain that can be attachmentable on
  * @author Emilio Alberdi
  */
-interface PublishingProvider {
+interface DownloaderProvider {
 
 	String getName()
 	
-	void publish(Attachment attachment, File file)
+	boolean isAuthorized(Attachment attachment)
 	
-	void unpublish(Attachment attachment)
+	boolean download(Attachment attachment, File file)
 	
 }
