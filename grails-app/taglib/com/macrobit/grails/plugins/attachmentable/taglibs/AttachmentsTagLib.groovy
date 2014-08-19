@@ -64,7 +64,7 @@ class AttachmentsTagLib {
 
 		def label = body() ?: attachment?.filename?.encodeAsHTML()
 		
-		if (!images.contains(attachment.ext.toLowerCase())) {
+		if (!images.contains(attachment.ext?.toLowerCase())) {
 			return
 		}
 		
