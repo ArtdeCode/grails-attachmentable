@@ -32,7 +32,7 @@ class AttachmentableGrailsPlugin {
 
     static LOG = LogFactory.getLog('com.macrobit.grails.plugins.AttachmentableGrailsPlugin')
 
-    def version = '0.4.9'
+    def version = '0.5.0'
     def grailsVersion = '2.2.3 > *'
     def dependsOn = [hibernate: '1.1 > *']
     def pluginExcludes = [

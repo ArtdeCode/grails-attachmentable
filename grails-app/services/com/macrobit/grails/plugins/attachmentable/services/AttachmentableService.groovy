@@ -14,27 +14,24 @@
  */
 package com.macrobit.grails.plugins.attachmentable.services
 
-import org.codehaus.groovy.grails.commons.ConfigurationHolder as CH
-
-import com.macrobit.grails.plugins.attachmentable.core.DownloaderProvider;
-import com.macrobit.grails.plugins.attachmentable.core.PublishingProvider;
-import com.macrobit.grails.plugins.attachmentable.core.exceptions.AttachmentableException
-import com.macrobit.grails.plugins.attachmentable.domains.Attachment
-import com.macrobit.grails.plugins.attachmentable.domains.AttachmentLink
-
 import grails.orm.PagedResultList
-import grails.util.Holders;
+import grails.util.Holders
 
+import java.lang.reflect.UndeclaredThrowableException
+
+import org.apache.commons.io.FilenameUtils
+import org.codehaus.groovy.grails.commons.ConfigurationHolder as CH
+import org.codehaus.groovy.grails.commons.DefaultGrailsDomainClass
 import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.multipart.commons.CommonsMultipartFile
 
-import com.macrobit.grails.plugins.attachmentable.util.AttachmentableUtil
-
-import org.apache.commons.io.FilenameUtils
-
+import com.macrobit.grails.plugins.attachmentable.core.DownloaderProvider
+import com.macrobit.grails.plugins.attachmentable.core.PublishingProvider
+import com.macrobit.grails.plugins.attachmentable.core.exceptions.AttachmentableException
 import com.macrobit.grails.plugins.attachmentable.core.exceptions.EmptyFileException
-
-import java.lang.reflect.UndeclaredThrowableException
+import com.macrobit.grails.plugins.attachmentable.domains.Attachment
+import com.macrobit.grails.plugins.attachmentable.domains.AttachmentLink
+import com.macrobit.grails.plugins.attachmentable.util.AttachmentableUtil
 
 class AttachmentableService {
 
@@ -318,7 +315,7 @@ class AttachmentableService {
                 inList 'inputName', inputNames
             }
             lnk {
-                eq 'referenceClass', reference.class.name
+                eq 'referenceClass', reference.class.simpleName
                 eq 'referenceId', reference.ident()
             }
             cache true
@@ -375,6 +372,10 @@ class AttachmentableService {
     PagedResultList findAttachmentsByReference(def reference,
                                                List inputs,
                                                def params = [:]) {
+		
+		println "findAttachmentsByReference "
+											   
+											   
         if (!reference) {
             throw new AttachmentableException(
                     "Reference is null.")
@@ -388,17 +389,20 @@ class AttachmentableService {
         params.order = params.order ?: 'desc'
         params.sort = params.sort ?: 'dateCreated'
         params.cache = true
-
+		
+		String delegateClassName = AttachmentableUtil.fixClassName(reference.class)
+		
         PagedResultList result = Attachment.createCriteria().list(params) {
             if (inputs) {
                 inList 'inputName', inputs
             }
             lnk {
-                eq 'referenceClass', reference.class.name
+                eq 'referenceClass', delegateClassName
                 eq 'referenceId', reference.ident()
             }
         }
 
+		
         result
     }
 											   
