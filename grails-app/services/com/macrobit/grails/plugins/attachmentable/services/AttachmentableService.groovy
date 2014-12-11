@@ -139,11 +139,12 @@ class AttachmentableService {
                 posterId: posterId,
                 // input
                 inputName: file.name)
-        link.addToAttachments attachment
+
+		        link.addToAttachments attachment
 
         if (!link.save(flush: true)) {
             throw new AttachmentableException(
-                    "Cannot create Attachment for arguments [$user, $file], they are invalid.")
+                    "Cannot create Attachment for arguments [$posterId, $file], they are invalid.")
         }
 
         // save file to disk
@@ -173,6 +174,98 @@ class AttachmentableService {
 		
         return reference
     }
+					  
+	  def addAttachment(def poster, def reference, File file,String contentType, boolean checkDuplicate = false) {
+		  addAttachment(Holders.config, poster, reference, file,contentType,checkDuplicate)
+	  }
+  
+	  def addAttachment(def config,
+						def poster,
+						def reference,
+						File file, 
+						String contentType,
+						boolean checkDuplicate = false) {
+  
+		  if (reference.ident() == null) {
+			  throw new AttachmentableException(
+				  "You must save the entity [${reference}] before calling addAttachment.")
+		  }
+  
+		  if (!file?.length()) {
+			  throw new EmptyFileException(file.name, file.absolutePath)
+		  }
+		  
+		  if (checkDuplicate && countAttachmentsByReference(reference, file.getName()) > 0  ) {
+			  return;
+		  }
+  
+		  String delegateClassName = AttachmentableUtil.fixClassName(reference.class)
+		  String posterClass = (poster instanceof String) ? poster : AttachmentableUtil.fixClassName(poster.class.name)
+		  Long posterId = (poster instanceof String) ? 0L : poster.id
+		  String filename = file.getName()
+  
+		  // link
+		  def link = AttachmentLink.findByReferenceClassAndReferenceId(
+				  delegateClassName, reference.ident())
+		  if (!link) {
+			  link = new AttachmentLink(
+					  referenceClass: delegateClassName,
+					  referenceId: reference.ident())
+		  }
+  
+		  // attachment
+		  Attachment attachment = new Attachment(
+		  // file
+		  name: FilenameUtils.getBaseName(filename),
+		  ext: FilenameUtils.getExtension(filename),
+		  length: 0L,
+		  contentType: contentType,
+		  // poster
+		  posterClass: posterClass,
+		  posterId: posterId,
+		  // input
+				  inputName: 'attachment')
+  
+				  link.addToAttachments attachment
+  
+		  if (!link.save(flush: true)) {
+			  
+			  link.errors.allErrors {
+				  
+				  println it
+			  }
+			  
+			  throw new AttachmentableException(
+					  "Cannot create Attachment for arguments [$posterId, $file], they are invalid.")
+		  }
+  
+		  // save file to disk
+		  File diskFile = AttachmentableUtil.getFile(config, attachment, true)
+		  file.renameTo(diskFile)
+		  
+		  attachment.length = diskFile.length()
+  
+		  PublishingProvider publishingProvider =  getPublishingProvider()
+		  
+		  if (publishingProvider) {
+			  publishingProvider.publish(attachment, diskFile)
+		  }
+  
+		  if(reference.respondsTo('onAddAttachment')) {
+			  reference.onAddAttachment(attachment)
+		  }
+  
+		  attachment.save(flush:true) // Force update so searchable can try to index it again.
+  
+		  def afterAttachmentSave = Holders.config.grails.attachmentable.afterAttachmentSave
+		  
+		  if (afterAttachmentSave instanceof Closure) {
+			  afterAttachmentSave.call(attachment)
+		  }
+		  
+		  return reference
+	}
+				  
 
     // remove
 
@@ -314,13 +407,53 @@ class AttachmentableService {
                 inList 'inputName', inputNames
             }
             lnk {
-                eq 'referenceClass', reference.class.simpleName
+                eq 'referenceClass', AttachmentableUtil.fixClassName(reference.class)
                 eq 'referenceId', reference.ident()
             }
             cache true
         }
         result
     }
+	
+	int countAttachmentsByReference(def reference, String filename, List inputNames = []) {
+		
+		String name = FilenameUtils.getBaseName(filename)
+		String ext = FilenameUtils.getExtension(filename)
+		
+		println "countAttachmentsByReference ${filename} ${ext} ${name}"
+  
+		if (!reference) {
+			throw new AttachmentableException(
+					"Reference is null.")
+		}
+
+		if (!reference.ident()) {
+			throw new AttachmentableException(
+					"Reference [$reference] is not a persisted instance.")
+		}
+
+		int result = Attachment.createCriteria().get {
+			projections {
+				rowCount()
+			}
+			if (inputNames) {
+				inList 'inputName', inputNames
+			}
+			
+			eq 'name', name
+			eq 'ext', ext
+			
+			lnk {
+				eq 'referenceClass', AttachmentableUtil.fixClassName(reference.class)
+				eq 'referenceId', reference.ident()
+			}
+			
+		}
+		
+		println "countAttachmentsByReference ${filename} ${ext} ${name} ${result}"
+		
+		result
+	}
 
     int countAttachmentsByPoster(def poster) {
         if (!poster) {
