@@ -13,28 +13,26 @@
  * limitations under the License.
  */
 
-import org.codehaus.groovy.grails.commons.ConfigurationHolder as CH
-import org.codehaus.groovy.grails.commons.GrailsClassUtils
-import com.macrobit.grails.plugins.attachmentable.core.ajax.AjaxMultipartResolver as AMR
-import com.macrobit.grails.plugins.attachmentable.core.Attachmentable
-import com.macrobit.grails.plugins.attachmentable.domains.Attachment
-import com.macrobit.grails.plugins.attachmentable.core.exceptions.AttachmentableException
-import com.macrobit.grails.plugins.attachmentable.util.AttachmentableUtil
-import org.springframework.web.multipart.commons.CommonsMultipartFile
-import com.macrobit.grails.plugins.attachmentable.services.AttachmentableService
-import org.springframework.web.multipart.support.DefaultMultipartHttpServletRequest
-import org.springframework.web.multipart.MultipartFile
-import com.macrobit.grails.plugins.attachmentable.core.ajax.ProgressDescriptor
 import org.apache.commons.logging.LogFactory
+import org.codehaus.groovy.grails.commons.GrailsClassUtils
+import org.springframework.web.multipart.MultipartFile
+import org.springframework.web.multipart.commons.CommonsMultipartFile
+import org.springframework.web.multipart.support.DefaultMultipartHttpServletRequest
+
+import com.macrobit.grails.plugins.attachmentable.core.Attachmentable
 import com.macrobit.grails.plugins.attachmentable.core.ajax.AjaxMultipartResolver
+import com.macrobit.grails.plugins.attachmentable.core.ajax.ProgressDescriptor
+import com.macrobit.grails.plugins.attachmentable.core.exceptions.AttachmentableException
+import com.macrobit.grails.plugins.attachmentable.domains.Attachment
+import com.macrobit.grails.plugins.attachmentable.services.AttachmentableService
+import com.macrobit.grails.plugins.attachmentable.util.AttachmentableUtil
 
 class AttachmentableGrailsPlugin {
 
     static LOG = LogFactory.getLog('com.macrobit.grails.plugins.AttachmentableGrailsPlugin')
 
-    def version = '0.5.0'
+    def version = '0.6.4'
     def grailsVersion = '2.2.3 > *'
-    def dependsOn = [hibernate: '1.1 > *']
     def pluginExcludes = [
         'lib/**',
 		
@@ -163,7 +161,7 @@ class AttachmentableGrailsPlugin {
             def controllerInstance = delegate
             def request = controllerInstance.request
 
-            ProgressDescriptor pd = request.session[AMR.progressAttrName(request)]
+            ProgressDescriptor pd = request.session[AjaxMultipartResolver.progressAttrName(request)]
             controllerInstance.render(pd ?: '')
         }
 

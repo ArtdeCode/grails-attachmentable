@@ -14,14 +14,13 @@
  */
 package com.macrobit.grails.plugins.attachmentable.controllers
 
-import org.codehaus.groovy.grails.commons.ConfigurationHolder as CH
-
 import com.macrobit.grails.plugins.attachmentable.core.DownloaderProvider;
 import com.macrobit.grails.plugins.attachmentable.domains.Attachment
 import com.macrobit.grails.plugins.attachmentable.domains.AttachmentLink
 import com.macrobit.grails.plugins.attachmentable.util.AttachmentableUtil
 
 import grails.orm.PagedResultList
+import grails.util.Holders;
 
 import javax.servlet.http.HttpServletResponse
 
@@ -49,7 +48,7 @@ class AttachmentableController {
 				
         if (attachment) {
             
-			File file = AttachmentableUtil.getFile(CH.config, attachment)
+			File file = AttachmentableUtil.getFile(Holders.config, attachment)
 
             if (file.exists()) {
                 String filename = attachment.filename /*.replaceAll(/\s/, '_')*/

@@ -14,7 +14,9 @@
  */
 package com.macrobit.grails.plugins.attachmentable.domains
 
-import org.codehaus.groovy.grails.commons.ConfigurationHolder as CH
+
+import grails.util.Holders
+
 import com.macrobit.grails.plugins.attachmentable.util.AttachmentableUtil
 
 class Attachment implements Serializable {
@@ -56,7 +58,7 @@ class Attachment implements Serializable {
     static transients = ['filename', 'path', 'niceLength', 'poster']
     static searchable = {
         only = ['name', 'ext', 'path']
-        path converter: CH.config.grails.attachmentable.searchableFileConverter ?: 'string'
+        path converter: Holders.config.grails.attachmentable.searchableFileConverter ?: 'string'
     }
 
     static mapping = {
@@ -83,7 +85,7 @@ class Attachment implements Serializable {
     }
 
     String getPath() {
-        AttachmentableUtil.getFile(CH.config, this).absolutePath
+        AttachmentableUtil.getFile(Holders.config, this).absolutePath
     }
 
     def getPoster() {

@@ -20,7 +20,6 @@ import grails.util.Holders
 import java.lang.reflect.UndeclaredThrowableException
 
 import org.apache.commons.io.FilenameUtils
-import org.codehaus.groovy.grails.commons.ConfigurationHolder as CH
 import org.codehaus.groovy.grails.commons.DefaultGrailsDomainClass
 import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.multipart.commons.CommonsMultipartFile
@@ -97,7 +96,7 @@ class AttachmentableService {
     }
 
     def addAttachment(def poster, def reference, CommonsMultipartFile file) {
-        addAttachment(CH.config, poster, reference, file)
+        addAttachment(Holders.config, poster, reference, file)
     }
 
     def addAttachment(def config,
@@ -179,10 +178,10 @@ class AttachmentableService {
 
     int removeAttachments(def reference) {
         def cnt = 0
-        def dir = AttachmentableUtil.getDir(CH.config, reference)
+        def dir = AttachmentableUtil.getDir(Holders.config, reference)
         def files = []
         reference.getAttachments()?.collect {
-            files << AttachmentableUtil.getFile(CH.config, it)
+            files << AttachmentableUtil.getFile(Holders.config, it)
         }
 
         def lnk = AttachmentLink.findByReferenceClassAndReferenceId(
@@ -222,7 +221,7 @@ class AttachmentableService {
     }
 
     boolean removeAttachment(Attachment attachment) {
-        File file = AttachmentableUtil.getFile(CH.config, attachment)
+        File file = AttachmentableUtil.getFile(Holders.config, attachment)
         try {
             AttachmentLink lnk = attachment.lnk
             
@@ -264,7 +263,7 @@ class AttachmentableService {
                     inputNames: inputNames])
 
         attachments?.each {Attachment attachment ->
-            File file = AttachmentableUtil.getFile(CH.config, attachment)
+            File file = AttachmentableUtil.getFile(Holders.config, attachment)
 
             try {
 				PublishingProvider publishingProvider =  getPublishingProvider()
