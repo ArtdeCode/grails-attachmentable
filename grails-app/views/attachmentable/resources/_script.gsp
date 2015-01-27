@@ -9,8 +9,8 @@
 
 </g:if>
 
-<g:javascript>
-    jQuery(document).ready(function() {
+<jq:jquery>
+
         jQuery('#${inputName}').MultiFile({
             max: ${maxFiles},
             accept: '${allowedExt}',
@@ -29,7 +29,6 @@
             beforeSubmit: function() {
                 progressbar.progressbar({ value: 0 });
                 progressbar.show();
-
                 var url = '${g.createLink(controller: 'attachmentable', action: 'uploadInfo')}';
 
                 time = setInterval(function() {
@@ -60,5 +59,5 @@
                 </g:if>
             }
         });
-    });
-</g:javascript>
+
+</jq:jquery>

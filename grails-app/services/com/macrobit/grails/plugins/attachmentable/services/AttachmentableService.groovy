@@ -18,9 +18,9 @@ import grails.orm.PagedResultList
 import grails.util.Holders
 
 import java.lang.reflect.UndeclaredThrowableException
+import java.nio.file.Files
 
 import org.apache.commons.io.FilenameUtils
-import org.codehaus.groovy.grails.commons.DefaultGrailsDomainClass
 import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.multipart.commons.CommonsMultipartFile
 
@@ -241,7 +241,8 @@ class AttachmentableService {
   
 		  // save file to disk
 		  File diskFile = AttachmentableUtil.getFile(config, attachment, true)
-		  file.renameTo(diskFile)
+		  
+		  Files.copy(file.toPath(), diskFile.toPath())
 		  
 		  attachment.length = diskFile.length()
   
