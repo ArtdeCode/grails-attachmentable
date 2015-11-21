@@ -17,6 +17,7 @@ package com.macrobit.grails.plugins.attachmentable.domains
 
 import grails.util.Holders
 
+import com.macrobit.grails.plugins.attachmentable.compass.FileContentConverter
 import com.macrobit.grails.plugins.attachmentable.util.AttachmentableUtil
 
 class Attachment implements Serializable {
@@ -91,5 +92,22 @@ class Attachment implements Serializable {
     def getPoster() {
         posterId == 0L ? posterClass : getClass().classLoader.loadClass(posterClass).get(posterId)
     }
+	
+	String getContent() {
+		InputStream input = null;
+		try {
+			input = new FileInputStream(getPath());
+			return FileContentConverter.extractText(input);
+		} catch (Exception ex) {
+			System.err.println("Error while extracting text from " + o + ": " + ex.getMessage());
+			return "";
+		} finally {
+			if(input != null) {
+				try {
+					input.close();
+				} catch(IOException e) { /* ignore */ }
+			}
+		}
+	}
 
 }
